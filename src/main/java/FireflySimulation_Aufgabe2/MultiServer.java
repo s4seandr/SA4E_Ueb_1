@@ -1,7 +1,8 @@
-package Test_fuer_A2;
+package FireflySimulation_Aufgabe2;
 
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
+import java.util.Random;
 
 public class MultiServer {
     public static void main(String[] args) {
@@ -9,13 +10,13 @@ public class MultiServer {
         int numberOfServers = gridSize * gridSize;
         int startingPort = 1099;
         MyRemoteService[] services = new MyRemoteService[numberOfServers];
+        Random random = new Random();
 
         try {
             for (int i = 0; i < numberOfServers; i++) {
                 int port = startingPort + i;
-                double phaseShift = i * Math.PI / (2 * gridSize); // Unterschiedliche Phasenverschiebungen für jeden Server
                 LocateRegistry.createRegistry(port);
-                MyRemoteService service = new MyRemoteServiceImpl(phaseShift);
+                MyRemoteService service = new MyRemoteServiceImpl();
                 Naming.rebind("rmi://localhost:" + port + "/MyRemoteService", service);
                 services[i] = service;
                 System.out.println("Server " + (i + 1) + " is running on port " + port + "...");
@@ -32,13 +33,10 @@ public class MultiServer {
                     if (i % gridSize != 0) neighborPhases[neighborCount++] = services[i - 1].getPhaseValue(System.currentTimeMillis());
                     if (i % gridSize != (gridSize - 1)) neighborPhases[neighborCount++] = services[i + 1].getPhaseValue(System.currentTimeMillis());
 
+                    services[i].updatePhase();
                     services[i].updateNeighborPhases(neighborPhases);
                 }
-                // Synchronisierungsberechnung für jeden Server
-                for (int i = 0; i < numberOfServers; i++) {
-                    ((MyRemoteServiceImpl) services[i]).synchronizePhase();
-                }
-                Thread.sleep(1000);
+                Thread.sleep(100); // Aktualisierungsrate erhöhen
             }
         } catch (Exception e) {
             e.printStackTrace();

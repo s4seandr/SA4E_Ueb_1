@@ -9,9 +9,6 @@ module com.example.demo1 {
     opens FireflySimulation_Aufgabe1 to javafx.fxml;
     exports FireflySimulation_Aufgabe1;
 
-    opens FireflySimulation_Aufgabe2 to javafx.graphics;
+    opens FireflySimulation_Aufgabe2 to java.rmi;
     exports FireflySimulation_Aufgabe2;
-
-    opens Test_fuer_A2 to java.rmi;
-    exports Test_fuer_A2;
 }
